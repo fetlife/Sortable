@@ -1301,6 +1301,14 @@ function Sortable(el, options) {
 
   // Add animation state manager
   Object.assign(this, AnimationStateManager());
+
+  if (documentExists) {
+    on(document, "touchmove", function (evt) {
+      if ((Sortable.active || awaitingDragStarted) && evt.cancelable) {
+        evt.preventDefault();
+      }
+    });
+  }
 }
 
 Sortable.prototype = /** @lends Sortable.prototype */ {
@@ -2852,15 +2860,7 @@ function _nextTick(fn) {
 function _cancelNextTick(id) {
   return clearTimeout(id);
 }
-
 // Fixed #973:
-if (documentExists) {
-  on(document, "touchmove", function (evt) {
-    if ((Sortable.active || awaitingDragStarted) && evt.cancelable) {
-      evt.preventDefault();
-    }
-  });
-}
 
 // Export utils
 Sortable.utils = {
