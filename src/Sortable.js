@@ -113,6 +113,7 @@ let dragEl,
 	awaitingDragStarted = false,
 	ignoreNextClick = false,
 	sortables = [],
+	touchMoveFixListener,
 
 	tapEvt,
 	touchEvt,
@@ -431,6 +432,16 @@ function Sortable(el, options) {
 	if (this.nativeDraggable) {
 		on(el, 'dragover', this);
 		on(el, 'dragenter', this);
+	}
+
+	// Fixed #973:
+	if (!touchMoveFixListener) {
+		on(document, 'touchmove', function(evt) {
+			if ((Sortable.active || awaitingDragStarted) && evt.cancelable) {
+				evt.preventDefault();
+			}
+		});
+		touchMoveFixListener = true
 	}
 
 	sortables.push(this.el);
@@ -1895,16 +1906,6 @@ function _nextTick(fn) {
 function _cancelNextTick(id) {
 	return clearTimeout(id);
 }
-
-// Fixed #973:
-if (documentExists) {
-	on(document, 'touchmove', function(evt) {
-		if ((Sortable.active || awaitingDragStarted) && evt.cancelable) {
-			evt.preventDefault();
-		}
-	});
-}
-
 
 // Export utils
 Sortable.utils = {
